@@ -1,0 +1,58 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+* {
+  scroll-behavior: smooth !important;
+}
+
+@layer base {
+  html {
+    @apply scroll-smooth text-[14px] tablet:text-[16px];
+  }
+
+  *::-webkit-scrollbar {
+    @apply h-1 w-1;
+  }
+
+  *::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    @apply rounded-large bg-default-400 hover:bg-default-500 active:bg-default-200;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-bold;
+  }
+  h1 {
+    @apply text-4xl tracking-wider;
+  }
+  h2 {
+    @apply text-3xl tracking-wider;
+  }
+  h3 {
+    @apply text-2xl tracking-wider;
+  }
+  h4 {
+    @apply text-xl tracking-wide;
+  }
+  h5 {
+    @apply text-lg tracking-wide;
+  }
+  h6 {
+    @apply text-base tracking-wide;
+  }
+}

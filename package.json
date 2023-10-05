@@ -1,0 +1,40 @@
+{
+  "name": "notipaste",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@nextui-org/react": "^2.1.13",
+    "axios": "^1.5.1",
+    "framer-motion": "^10.16.4",
+    "lucide-react": "^0.279.0",
+    "next": "latest",
+    "next-seo": "^6.1.0",
+    "next-theme": "^0.1.5",
+    "pocketbase": "^0.18.0",
+    "react": "latest",
+    "react-dom": "latest",
+    "react-toastify": "^9.1.3",
+    "typed-pocketbase": "^0.0.7"
+  },
+  "devDependencies": {
+    "@trivago/prettier-plugin-sort-imports": "^4.1.1",
+    "@types/node": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "autoprefixer": "latest",
+    "eslint": "latest",
+    "eslint-config-next": "latest",
+    "postcss": "latest",
+    "prettier": "2.8",
+    "prettier-plugin-tailwindcss": "^0.3.0",
+    "tailwind-merge": "^1.14.0",
+    "tailwindcss": "latest",
+    "typescript": "latest"
+  }
+}
