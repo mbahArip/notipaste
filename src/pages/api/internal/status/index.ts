@@ -17,8 +17,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 }
 
 async function Get(req: NextApiRequest, res: NextApiResponse) {
-  const response = await axios.get('https://server.mbaharip.com/_').then((res) => res.status);
-  if (response === 200) {
+  const url = new URL('/api/health', process.env.NEXT_PUBLIC_POCKETBASE_URL);
+  const response = await axios.get(url.toString()).then((res) => res.data);
+  console.log(response);
+  if (response.code === 200) {
     return res.status(200).json({ message: 'Server is online', status: true });
   } else {
     return res.status(200).json({ message: 'Server is offline', status: false });
