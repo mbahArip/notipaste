@@ -7696,7 +7696,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"next@npm:latest":
+"next@npm:13.5.3":
   version: 13.5.3
   resolution: "next@npm:13.5.3"
   dependencies:
@@ -7873,7 +7873,7 @@ __metadata:
     eslint-config-next: latest
     framer-motion: ^10.16.4
     lucide-react: ^0.279.0
-    next: latest
+    next: 13.5.3
     next-pwa: ^5.6.0
     next-seo: ^6.1.0
     next-theme: ^0.1.5
