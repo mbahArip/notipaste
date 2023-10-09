@@ -201,6 +201,35 @@ export type NotipasteReportsCollection = {
   };
 };
 
+// ===== notipaste_global =====
+
+export type NotipasteGlobalResponse = {
+  key: string;
+  value: string;
+} & BaseCollectionRecord;
+
+export type NotipasteGlobalCreate = {
+  key: string;
+  value: string;
+};
+
+export type NotipasteGlobalUpdate = {
+  key?: string;
+  value?: string;
+};
+
+export type NotipasteGlobalCollection = {
+  type: 'base';
+  collectionId: 'fezf88zavtb16vh';
+  collectionName: 'notipaste_global';
+  response: NotipasteGlobalResponse;
+  create: NotipasteGlobalCreate;
+  update: NotipasteGlobalUpdate;
+  relations: {
+    paste: NotipasteBinCollection;
+  };
+};
+
 // ===== Schema =====
 
 export type Schema = {
@@ -209,4 +238,5 @@ export type Schema = {
   notipaste_bin: NotipasteBinCollection;
   notipaste_attachments: NotipasteAttachmentsCollection;
   notipaste_reports: NotipasteReportsCollection;
+  notipaste_global: NotipasteGlobalCollection;
 };

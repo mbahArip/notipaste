@@ -57,6 +57,13 @@ export default function Footer() {
           </NextUILink>
           <NextUILink
             as={Link}
+            href={Routes.DELETE_PASTE}
+            className='text-small'
+          >
+            Delete My Paste
+          </NextUILink>
+          <NextUILink
+            as={Link}
             href='https://www.github.com/mbaharip/notipaste'
             isExternal
             className='text-small'

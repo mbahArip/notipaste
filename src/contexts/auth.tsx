@@ -41,7 +41,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
       if (pb.authStore.isValid) {
         setUserData(pb.authStore.model as RecordModel);
       } else {
-        logout();
+        setUser(null);
+        pb.authStore.clear();
+        cookieHelper.delete('pb_auth');
       }
       setIsLoading(false);
     };
@@ -74,6 +76,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     cookieHelper.delete('pb_auth');
     if (router.pathname.startsWith(Routes.PROFILE)) {
       router.push(Routes.HOME);
+    } else {
+      router.reload();
     }
   };
 

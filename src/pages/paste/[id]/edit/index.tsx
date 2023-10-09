@@ -18,7 +18,7 @@ import {
   Textarea,
   useDisclosure,
 } from '@nextui-org/react';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { Routes } from 'constant';
 import { GetServerSidePropsContext } from 'next';
 import useTheme from 'next-theme';
@@ -158,8 +158,18 @@ export default function EditPastePage({ paste }: EditPastePageProps) {
       toast.success('Paste updated successfully.');
       publishedModal.onOpen();
     } catch (error: any) {
-      console.error(error);
-      toast.error(error.message);
+      if (error instanceof AxiosError) {
+        const response = error.response?.data;
+        console.error(response);
+        if (response) {
+          toast.error(error.message);
+        } else {
+          toast.error('An unknown error occurred');
+        }
+      } else {
+        console.error(error);
+        toast.error(error.message);
+      }
     } finally {
       setPublishState('idle');
     }
@@ -424,26 +434,28 @@ export default function EditPastePage({ paste }: EditPastePageProps) {
             <div className='mt-4 flex flex-col gap-1 rounded-medium border border-divider bg-content1 p-2'>
               <h6>Share this paste</h6>
               <div className='mx-auto flex w-full items-center justify-center gap-2 rounded-medium bg-content2 p-2'>
-                <Button
-                  isIconOnly
-                  variant='light'
-                  size='sm'
-                  radius='full'
-                  onPress={() => {
-                    const url = shareUrl('facebook', `/paste/${publishedId}`);
-                    window.open(url, '_blank');
-                  }}
-                >
-                  <Image
-                    src='/img/social/facebook.svg'
-                    alt='facebook'
-                    removeWrapper
-                    width={24}
-                    height={24}
-                    className='object-contain'
-                    radius='none'
-                  />
-                </Button>
+                {process.env.NEXT_PUBLIC_FACEBOOK_APP_ID && (
+                  <Button
+                    isIconOnly
+                    variant='light'
+                    size='sm'
+                    radius='full'
+                    onPress={() => {
+                      const url = shareUrl('facebook', `/paste/${publishedId}`);
+                      window.open(url, '_blank');
+                    }}
+                  >
+                    <Image
+                      src='/img/social/facebook.svg'
+                      alt='facebook'
+                      removeWrapper
+                      width={24}
+                      height={24}
+                      className='object-contain'
+                      radius='none'
+                    />
+                  </Button>
+                )}
                 <Button
                   isIconOnly
                   variant='light'

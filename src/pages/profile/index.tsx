@@ -625,26 +625,28 @@ export default function ProfilePage() {
                             </PopoverTrigger>
                             <PopoverContent>
                               <div className='flex items-center gap-2'>
-                                <Button
-                                  isIconOnly
-                                  variant='light'
-                                  size='sm'
-                                  radius='full'
-                                  onPress={() => {
-                                    const url = shareUrl('facebook', `/paste/${paste.id}`);
-                                    window.open(url, '_blank');
-                                  }}
-                                >
-                                  <Image
-                                    src='/img/social/facebook.svg'
-                                    alt='facebook'
-                                    removeWrapper
-                                    width={24}
-                                    height={24}
-                                    className='object-contain'
-                                    radius='none'
-                                  />
-                                </Button>
+                                {process.env.NEXT_PUBLIC_FACEBOOK_APP_ID && (
+                                  <Button
+                                    isIconOnly
+                                    variant='light'
+                                    size='sm'
+                                    radius='full'
+                                    onPress={() => {
+                                      const url = shareUrl('facebook', `/paste/${paste.id}`);
+                                      window.open(url, '_blank');
+                                    }}
+                                  >
+                                    <Image
+                                      src='/img/social/facebook.svg'
+                                      alt='facebook'
+                                      removeWrapper
+                                      width={24}
+                                      height={24}
+                                      className='object-contain'
+                                      radius='none'
+                                    />
+                                  </Button>
+                                )}
                                 <Button
                                   isIconOnly
                                   variant='light'

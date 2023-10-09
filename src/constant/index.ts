@@ -8,6 +8,7 @@ export enum Routes {
   TOS = '/terms-of-services',
 
   NEW_PASTE = '/paste/new',
+  DELETE_PASTE = '/delete',
 
   LOGIN = '/auth/login',
   REGISTER = '/auth/register',

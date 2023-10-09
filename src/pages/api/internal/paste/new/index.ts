@@ -61,6 +61,14 @@ async function Post(req: NextApiRequest, res: NextApiResponse) {
     expires,
   });
 
+  const global = await pb.collection('notipaste_global').getList(1, 1, {
+    filter: 'key = "paste_counter"',
+  });
+  const counter = Number(global.items[0].value);
+  await pb.collection('notipaste_global').update('as7nqaul1s9ji57', {
+    value: String(counter + 1),
+  });
+
   return res.status(200).json({
     message: 'success',
     data: create,

@@ -227,25 +227,27 @@ export default function PastePage({ paste, owner, isOwner, expiresIn }: PastePag
             <CardFooter className='flex-col items-center gap-2'>
               <span className='text-small font-semibold'>Share this paste</span>
               <div className='flex items-center justify-end gap-2'>
-                <Button
-                  variant='light'
-                  isIconOnly
-                  size='sm'
-                  radius='full'
-                  onPress={() => {
-                    const url = shareUrl('facebook', `/paste/${paste.id}`);
-                    window.open(url, '_blank');
-                  }}
-                >
-                  <Image
-                    src='/img/social/facebook.svg'
-                    alt='Facebook'
-                    removeWrapper
-                    width={24}
-                    height={24}
-                    radius='none'
-                  />
-                </Button>
+                {process.env.NEXT_PUBLIC_FACEBOOK_APP_ID && (
+                  <Button
+                    variant='light'
+                    isIconOnly
+                    size='sm'
+                    radius='full'
+                    onPress={() => {
+                      const url = shareUrl('facebook', `/paste/${paste.id}`);
+                      window.open(url, '_blank');
+                    }}
+                  >
+                    <Image
+                      src='/img/social/facebook.svg'
+                      alt='Facebook'
+                      removeWrapper
+                      width={24}
+                      height={24}
+                      radius='none'
+                    />
+                  </Button>
+                )}
                 <Button
                   variant='light'
                   isIconOnly
@@ -484,7 +486,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
       };
     }
   }
-  const author = (data.expand as any).author as NotipasteUserResponse;
+  const author = data.expand ? ((data.expand as any).author as NotipasteUserResponse) : null;
   const expiresIn = data.expires ? relativeDate(data.expires, true) : null;
 
   return {

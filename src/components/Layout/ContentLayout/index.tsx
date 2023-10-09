@@ -28,6 +28,7 @@ export default function ContentLayout(props: ContentLayoutProps) {
         }
       } catch (error: any) {
         setServerStatus('down');
+
         console.error(error);
       } finally {
         setState('idle');

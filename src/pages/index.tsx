@@ -1,17 +1,37 @@
 import { Button, Card, CardBody, CardHeader, Divider, Image, Link as NextUILink, Tab, Tabs } from '@nextui-org/react';
 import { Routes } from 'constant';
 import { motion } from 'framer-motion';
+import { GetServerSidePropsContext } from 'next';
 import useTheme from 'next-theme';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 
 import ContentLayout from 'components/Layout/ContentLayout';
 
 import { useAuth } from 'contexts/auth';
+import pb from 'utils/pocketbase';
 
-export default function IndexPage() {
+interface IndexPageProps {
+  created: number;
+}
+export default function IndexPage(props: IndexPageProps) {
   const { user } = useAuth();
   const { theme } = useTheme();
+
+  const [num, setNum] = useState<number>(props.created);
+
+  useEffect(() => {
+    pb.collection('notipaste_global').subscribe('*', (data) => {
+      if (data.action === 'update') {
+        setNum(Number(data.record.value));
+      }
+    });
+
+    return () => {
+      pb.collection('notipaste_global').unsubscribe('*');
+    };
+  }, []);
 
   return (
     <ContentLayout>
@@ -21,8 +41,31 @@ export default function IndexPage() {
       >
         <h1 className='text-6xl'>Notipaste</h1>
         <h2 className='text-center'>
-          Simple, fast, and secure pastebin service. <br />
+          Simple, fast, and secure pastebin service <br />
         </h2>
+        <h3 className='flex items-center gap-2'>
+          Total of{' '}
+          <div className='flex items-center'>
+            {String(num)
+              .split('')
+              .map((n) => (
+                <motion.div
+                  key={`counter-${n}`}
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 20 }}
+                  transition={{
+                    duration: 0.5,
+                    ease: 'easeInOut',
+                    type: 'tween',
+                  }}
+                >
+                  {n}
+                </motion.div>
+              ))}
+          </div>
+          pastes have been created
+        </h3>
         <p className='text-center text-default-400'>
           Create a paste and share it with your friends. <br />
           No account required.
@@ -211,4 +254,16 @@ export default function IndexPage() {
       />
     </ContentLayout>
   );
+}
+
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const created = await pb.collection('notipaste_global').getList(1, 1, {
+    filter: 'key = "paste_counter"',
+  });
+
+  return {
+    props: {
+      created: Number(created.items[0].value),
+    },
+  };
 }
