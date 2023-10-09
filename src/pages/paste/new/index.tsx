@@ -97,6 +97,9 @@ export default function NewPastePage() {
       if (Number(expirationDays) > 0) {
         expiration = new Date().getTime() + Number(expirationDays) * 24 * 60 * 60 * 1000;
       }
+      if (!user) {
+        expiration = new Date().getTime() + 14 * 24 * 60 * 60 * 1000;
+      }
 
       const response = await axios
         .post('/api/internal/paste/new', {
