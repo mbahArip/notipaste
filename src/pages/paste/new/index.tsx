@@ -85,6 +85,7 @@ export default function NewPastePage() {
 
     try {
       if (pasteIdentifier) {
+        if (pasteIdentifier.length < 6) throw new Error('Identifier must be at least 6 characters long.');
         const check = await axios
           .get(`/api/internal/paste/check-identifier?identifier=${pasteIdentifier}`)
           .then((res) => res.data);
@@ -231,6 +232,7 @@ export default function NewPastePage() {
                 label='Paste identifier'
                 placeholder='Enter custom identifier here...'
                 variant='underlined'
+                minLength={6}
                 description={'Optional. Leave blank to disable. We will force lower-case and replace spaces with dash.'}
                 className='tablet:col-span-2'
                 value={pasteIdentifier}
