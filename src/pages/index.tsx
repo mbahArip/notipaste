@@ -51,9 +51,9 @@ export default function IndexPage(props: IndexPageProps) {
               .map((n) => (
                 <motion.div
                   key={`counter-${n}`}
-                  initial={{ opacity: 0, y: -20 }}
+                  initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 20 }}
+                  exit={{ opacity: 0, y: 10 }}
                   transition={{
                     duration: 0.5,
                     ease: 'easeInOut',
