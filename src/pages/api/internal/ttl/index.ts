@@ -31,19 +31,42 @@ async function Post(req: NextApiRequest, res: NextApiResponse) {
   if (!password) {
     return res.status(400).json({ message: 'Password is required', scope: 'password' });
   }
+  if (password !== process.env.POCKETBASE_PASSWORD) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
 
   const MAX_AGE = 60 * 60 * 24 * 14;
 
-  const paste = await pb.collection('notipaste_bin').getFullList({
-    filter: `created > "${Date.now() - MAX_AGE * 1000}" && author = ""`,
+  const _paste = pb.collection('notipaste_bin').getFullList({
+    filter: `(created > "${new Date(
+      Date.now() - MAX_AGE * 1000,
+    ).toISOString()}" && author = "") || (expires != "" && expires < "${new Date().toISOString()}")`,
   });
+  const _attachments = pb.collection('notipaste_attachments').getFullList({
+    filter: `paste = ""`,
+  });
+  const [paste, attachments] = await Promise.all([_paste, _attachments]);
   const pasteId = paste.map((item) => item.id);
+  const attachmentIds = attachments.map((item) => item.id);
 
   if (pasteId) {
     const promise = new Promise(async (resolve, reject) => {
       try {
         await pasteId.forEach(async (id) => {
           await pb.collection('notipaste_bin').delete(id);
+        });
+        resolve(true);
+      } catch (error: any) {
+        reject(error);
+      }
+    });
+    await promise;
+  }
+  if (attachmentIds) {
+    const promise = new Promise(async (resolve, reject) => {
+      try {
+        await attachmentIds.forEach(async (id) => {
+          await pb.collection('notipaste_attachments').delete(id);
         });
         resolve(true);
       } catch (error: any) {

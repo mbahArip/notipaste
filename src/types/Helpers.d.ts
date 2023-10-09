@@ -1,4 +1,4 @@
 /**
  * Loading state for async actions
  */
-export type LoadingState = 'idle' | 'loading' | 'error';
+export type LoadingState = 'idle' | 'loading' | 'error' | 'disabled';

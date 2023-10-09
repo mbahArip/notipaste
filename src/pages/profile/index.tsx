@@ -6,13 +6,31 @@ import {
   CardBody,
   CardFooter,
   Divider,
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownSection,
+  DropdownTrigger,
+  Image,
   Input,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
   Link as NextUILink,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
   Skeleton,
   Tooltip,
+  useDisclosure,
 } from '@nextui-org/react';
+import axios from 'axios';
 import { Routes } from 'constant';
+import { motion } from 'framer-motion';
 import { GetServerSidePropsContext } from 'next';
+import useTheme from 'next-theme';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
@@ -24,15 +42,18 @@ import Icon from 'components/Shared/Icon';
 
 import { useAuth } from 'contexts/auth';
 import useDebounce from 'hooks/useDebounce';
+import copyText from 'utils/copyText';
 import pb from 'utils/pocketbase';
 import relativeDate from 'utils/relativeDate';
 import relativeNumber from 'utils/relativeNumber';
+import shareUrl from 'utils/shareUrl';
 
 import { NotipasteBinResponse } from 'types/Database';
 import { LoadingState } from 'types/Helpers';
 
 export default function ProfilePage() {
   const router = useRouter();
+  const { theme } = useTheme();
   const { isLoading, user } = useAuth();
 
   const [dataState, setDataState] = useState<LoadingState>(isLoading ? 'loading' : 'idle');
@@ -75,11 +96,30 @@ export default function ProfilePage() {
   const [list, setList] = useState<NotipasteBinResponse[]>([]);
   const [defaultList, setDefaultList] = useState<NotipasteBinResponse[]>([]);
 
+  const deleteModal = useDisclosure();
+  const [selectedPaste, setSelectedPaste] = useState<NotipasteBinResponse | null>(null);
+  const [deleteState, setDeleteState] = useState<LoadingState>('idle');
+
   useEffect(() => {
     if (!user) return;
     const fetchData = async () => {
       setDataState('loading');
-      const pasteCollection = await pb.collection('notipaste_bin').getList(1, 0);
+      let token = pb.authStore.token;
+      if (!token) {
+        const cookies = document.cookie;
+        pb.authStore.loadFromCookie(cookies, 'pb_auth');
+        token = pb.authStore.token;
+      }
+      const stats = await axios
+        .get('/api/internal/user-stats', {
+          headers: {
+            Authorization: token,
+          },
+        })
+        .then((res) => res.data);
+      // const pasteCollection = await pb.collection('notipaste_bin').getList(1, 0, {
+      //   filter: `author = "${user.id}"`,
+      // });
 
       setUserStats([
         {
@@ -88,11 +128,11 @@ export default function ProfilePage() {
         },
         {
           title: 'Total Pastes',
-          value: pasteCollection.totalItems,
+          value: stats.data.totalItems,
         },
         {
           title: 'Total Views',
-          value: 0,
+          value: relativeNumber(stats.data.totalViews),
         },
       ]);
     };
@@ -167,6 +207,69 @@ export default function ProfilePage() {
     } finally {
       setListState('idle');
       setMoreState('idle');
+    }
+  };
+
+  const updatePasteVisibility = async (paste: NotipasteBinResponse) => {
+    try {
+      if (!user) throw new Error('You must be logged in to update paste visibility');
+      const token = pb.authStore.token;
+      if (!token) throw new Error('Failed to get token, please relogin');
+
+      await pb.collection('notipaste_bin').update(paste.id, {
+        privacy: paste.privacy === 'public' ? 'private' : 'public',
+      });
+
+      handleFetchPaste();
+      toast.success('Paste visibility updated');
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error.message);
+    }
+  };
+  const handleDeletePaste = async () => {
+    setDeleteState('loading');
+
+    try {
+      if (!selectedPaste) throw new Error('Failed to get paste data');
+      if (!user) throw new Error('You must be logged in to delete paste');
+      const token = pb.authStore.token;
+      if (!token) throw new Error('Failed to get token, please relogin');
+
+      await pb.collection('notipaste_bin').delete(selectedPaste.id);
+
+      const stats = await axios
+        .get('/api/internal/user-stats', {
+          headers: {
+            Authorization: token,
+          },
+        })
+        .then((res) => res.data);
+      const newStats = [
+        {
+          title: 'Join date',
+          value: relativeDate(user?.created),
+        },
+        {
+          title: 'Total Pastes',
+          value: stats.data.totalItems,
+        },
+        {
+          title: 'Total Views',
+          value: relativeNumber(stats.data.totalViews),
+        },
+      ];
+      setUserStats(newStats);
+
+      const newList = list.filter((item) => item.id !== selectedPaste.id);
+      setList(newList);
+      toast.success('Paste deleted');
+      deleteModal.onClose();
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error.message);
+    } finally {
+      setDeleteState('idle');
     }
   };
 
@@ -289,7 +392,15 @@ export default function ProfilePage() {
             ) : (
               <>
                 {list.length === 0 ? (
-                  <span className='col-span-full py-8 text-center text-large text-default-400'>
+                  <motion.span
+                    initial={{ opacity: 0 }}
+                    animate={{
+                      opacity: 1,
+                    }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.3, ease: 'easeInOut' }}
+                    className='col-span-full py-8 text-center text-large text-default-400'
+                  >
                     You don&apos;t have any paste yet,{' '}
                     <NextUILink
                       as={Link}
@@ -299,87 +410,278 @@ export default function ProfilePage() {
                       create one now
                     </NextUILink>
                     !
-                  </span>
+                  </motion.span>
                 ) : (
                   <>
-                    {list.map((paste) => (
-                      <Card
+                    {list.map((paste, index) => (
+                      <motion.div
                         key={paste.id}
-                        as={Link}
-                        href={`/paste/${paste.custom_identifier || paste.id}`}
-                        isPressable
-                        isHoverable
+                        initial={{
+                          opacity: 0,
+                          y: 40,
+                        }}
+                        animate={{
+                          opacity: 1,
+                          y: 0,
+                        }}
+                        transition={{
+                          duration: 0.3,
+                          ease: 'easeInOut',
+                          delay: index * 0.1,
+                        }}
+                        className='flex w-full flex-grow'
                       >
-                        <CardBody className='relative gap-2'>
-                          <div className='flex items-center gap-2'>
-                            <h4 className='line-clamp-1'>{paste.title}</h4>
-                            {paste.password && (
-                              <Tooltip content='This paste is password protected'>
+                        <Card
+                          as={Link}
+                          href={`/paste/${paste.custom_identifier || paste.id}`}
+                          isPressable
+                          isHoverable
+                          classNames={{
+                            base: 'w-full rounded-r-none',
+                          }}
+                        >
+                          <CardBody className='relative gap-2'>
+                            <div className='flex items-center gap-2'>
+                              <h4 className='line-clamp-1'>{paste.title}</h4>
+
+                              {paste.password && (
                                 <Icon
                                   name='KeyRound'
                                   size='xs'
                                   className='text-default-400'
                                 />
+                              )}
+                            </div>
+                            <span className='line-clamp-2 text-small text-default-400'>
+                              {paste.description || 'No description'}
+                            </span>
+                          </CardBody>
+                          <CardFooter className='flex-col'>
+                            <div className='grid w-full grid-cols-3 place-items-center text-tiny text-default-400'>
+                              <Tooltip
+                                placement='bottom'
+                                content={
+                                  paste.privacy === 'public'
+                                    ? 'Anyone with the link can view this paste'
+                                    : 'Only you can view this paste'
+                                }
+                              >
+                                <div className='flex w-full items-center justify-center gap-1'>
+                                  <Icon
+                                    name={paste.privacy === 'public' ? 'Globe' : 'Lock'}
+                                    size='xs'
+                                  />
+                                  <span>{paste.privacy === 'public' ? 'Public' : 'Private'}</span>
+                                </div>
                               </Tooltip>
-                            )}
-                          </div>
-                          <span className='line-clamp-2 text-small text-default-400'>
-                            {paste.description || 'No description'}
-                          </span>
-                        </CardBody>
-                        <CardFooter className='flex-col'>
-                          <div className='grid w-full grid-cols-3 place-items-center text-tiny text-default-400'>
-                            <Tooltip
-                              placement='bottom'
-                              content={
-                                paste.privacy === 'public'
-                                  ? 'Anyone with the link can view this paste'
-                                  : 'Only you can view this paste'
+                              <Tooltip
+                                placement='bottom'
+                                content={`${paste.views} ${paste.views > 1 ? 'views' : 'view'}`}
+                              >
+                                <div className='flex w-full items-center justify-center gap-1'>
+                                  <Icon
+                                    name='Eye'
+                                    size='xs'
+                                  />
+                                  <span>{relativeNumber(paste.views)}</span>
+                                </div>
+                              </Tooltip>
+                              <Tooltip
+                                placement='bottom'
+                                content={`Created at ${new Date(paste.created).toLocaleDateString('en-US', {
+                                  hour: 'numeric',
+                                  minute: 'numeric',
+                                  hour12: true,
+                                  hourCycle: 'h23',
+                                  month: 'long',
+                                  day: 'numeric',
+                                  year: 'numeric',
+                                })}`}
+                              >
+                                <div className='flex w-full items-center justify-center gap-1'>
+                                  <Icon
+                                    name='Timer'
+                                    size='xs'
+                                  />
+                                  <span>{relativeDate(new Date(paste.created).toISOString())}</span>
+                                </div>
+                              </Tooltip>
+                            </div>
+                          </CardFooter>
+                        </Card>
+                        <div className='flex flex-col items-center justify-between gap-2 rounded-r-medium bg-content2 p-1'>
+                          <Dropdown>
+                            <DropdownTrigger>
+                              <Button
+                                isIconOnly
+                                variant='light'
+                                size='sm'
+                                radius='full'
+                              >
+                                <Icon
+                                  name='MoreVertical'
+                                  size='sm'
+                                />
+                              </Button>
+                            </DropdownTrigger>
+                            <DropdownMenu
+                              variant='faded'
+                              onAction={(e) => {
+                                switch (e) {
+                                  case 'edit':
+                                    router.push(`/paste/${paste.id}/edit`);
+                                    break;
+                                  case 'visibility':
+                                    updatePasteVisibility(paste);
+                                    break;
+                                  case 'delete':
+                                    setSelectedPaste(paste);
+                                    deleteModal.onOpen();
+                                    break;
+                                  default:
+                                    toast.error('An error occured while performing this action');
+                                    break;
+                                }
+                              }}
+                            >
+                              <DropdownSection
+                                title={'Actions'}
+                                showDivider
+                              >
+                                <DropdownItem key={'edit'}>
+                                  <div className='flex items-center gap-2'>
+                                    <Icon name='Pencil' />
+                                    <div className='flex flex-col'>
+                                      <span>Edit paste</span>
+                                      <p className='text-tiny text-default-400'>Update the content of this paste</p>
+                                    </div>
+                                  </div>
+                                </DropdownItem>
+                                <DropdownItem key={'visibility'}>
+                                  <div className='flex items-center gap-2'>
+                                    <Icon name={paste.privacy === 'public' ? 'Lock' : 'Globe'} />
+                                    <div className='flex flex-col'>
+                                      <span>Change visibility</span>
+                                      <p className='text-tiny text-default-400'>
+                                        {paste.privacy === 'public'
+                                          ? 'Make this paste private'
+                                          : 'Make this paste public'}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </DropdownItem>
+                              </DropdownSection>
+                              <DropdownSection title={'Danger zone'}>
+                                <DropdownItem
+                                  key={'delete'}
+                                  color='danger'
+                                >
+                                  <div className='flex items-center gap-2 text-danger'>
+                                    <Icon name='Trash' />
+                                    <div className='flex flex-col'>
+                                      <span>Delete paste</span>
+                                    </div>
+                                  </div>
+                                </DropdownItem>
+                              </DropdownSection>
+                            </DropdownMenu>
+                          </Dropdown>
+                          <Button
+                            isIconOnly
+                            variant='light'
+                            size='sm'
+                            radius='full'
+                            onPress={() => {
+                              try {
+                                const url = new URL(
+                                  `/paste/${paste.custom_identifier ?? paste.id}`,
+                                  process.env.NEXT_PUBLIC_VERCEL_URL,
+                                );
+                                copyText(url.toString());
+                              } catch (error: any) {
+                                console.error(error);
+                                toast.error(error.message);
                               }
-                            >
-                              <div className='flex items-center gap-1'>
+                            }}
+                          >
+                            <Icon
+                              name='Copy'
+                              size='sm'
+                            />
+                          </Button>
+                          <Popover placement='bottom'>
+                            <PopoverTrigger>
+                              <Button
+                                isIconOnly
+                                variant='light'
+                                size='sm'
+                                radius='full'
+                              >
                                 <Icon
-                                  name={paste.privacy === 'public' ? 'Globe' : 'Lock'}
-                                  size='xs'
+                                  name='Share2'
+                                  size='sm'
                                 />
-                                <span>{paste.privacy === 'public' ? 'Public' : 'Private'}</span>
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent>
+                              <div className='flex items-center gap-2'>
+                                <Button
+                                  isIconOnly
+                                  variant='light'
+                                  size='sm'
+                                  radius='full'
+                                  onPress={() => {
+                                    const url = shareUrl('facebook', `/paste/${paste.id}`);
+                                    window.open(url, '_blank');
+                                  }}
+                                >
+                                  <Image
+                                    src='/img/social/facebook.svg'
+                                    alt='facebook'
+                                    removeWrapper
+                                    width={24}
+                                    height={24}
+                                    className='object-contain'
+                                    radius='none'
+                                  />
+                                </Button>
+                                <Button
+                                  isIconOnly
+                                  variant='light'
+                                  size='sm'
+                                  radius='full'
+                                  onPress={() => {
+                                    const url = shareUrl('twitter', `/paste/${paste.id}`);
+                                    window.open(url, '_blank');
+                                  }}
+                                >
+                                  <Image
+                                    src='/img/social/x.svg'
+                                    alt='X'
+                                    removeWrapper
+                                    width={16}
+                                    height={16}
+                                    className={twMerge('object-contain', theme === 'dark' && 'invert')}
+                                    radius='none'
+                                  />
+                                </Button>
+                                <Button
+                                  isIconOnly
+                                  variant='light'
+                                  size='sm'
+                                  radius='full'
+                                  onPress={() => {
+                                    const url = shareUrl('email', `/paste/${paste.id}`);
+                                    window.open(url, '_blank');
+                                  }}
+                                >
+                                  <Icon name='Mail' />
+                                </Button>
                               </div>
-                            </Tooltip>
-                            <Tooltip
-                              placement='bottom'
-                              content={`${paste.views} ${paste.views > 1 ? 'views' : 'view'}`}
-                            >
-                              <div className='flex items-center gap-1'>
-                                <Icon
-                                  name='Eye'
-                                  size='xs'
-                                />
-                                <span>{relativeNumber(paste.views)}</span>
-                              </div>
-                            </Tooltip>
-                            <Tooltip
-                              placement='bottom'
-                              content={`Created at ${new Date(paste.created).toLocaleDateString('en-US', {
-                                hour: 'numeric',
-                                minute: 'numeric',
-                                hour12: true,
-                                hourCycle: 'h23',
-                                month: 'long',
-                                day: 'numeric',
-                                year: 'numeric',
-                              })}`}
-                            >
-                              <div className='flex items-center gap-1'>
-                                <Icon
-                                  name='Timer'
-                                  size='xs'
-                                />
-                                <span>{relativeDate(new Date(paste.created).toISOString())}</span>
-                              </div>
-                            </Tooltip>
-                          </div>
-                        </CardFooter>
-                      </Card>
+                            </PopoverContent>
+                          </Popover>
+                        </div>
+                      </motion.div>
                     ))}
                     {isMore && (
                       <Button
@@ -398,6 +700,39 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
+
+      <Modal
+        isOpen={deleteModal.isOpen}
+        onOpenChange={deleteModal.onOpenChange}
+        onClose={() => setSelectedPaste(null)}
+      >
+        <ModalContent>
+          <ModalHeader>Delete paste</ModalHeader>
+          <ModalBody>
+            <p>
+              Are you sure you want to delete paste <strong>{selectedPaste?.title}</strong>?
+            </p>
+            <p className='text-small text-default-400'>This action can&apos;t be undone.</p>
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              variant='faded'
+              color='primary'
+              onPress={deleteModal.onClose}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant='shadow'
+              color='danger'
+              onPress={handleDeletePaste}
+              isLoading={deleteState === 'loading'}
+            >
+              Delete
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </ContentLayout>
   );
 }

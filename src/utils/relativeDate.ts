@@ -1,25 +1,28 @@
-export default function relativeDate(date: string) {
+export default function relativeDate(date: string, future: boolean = false) {
   const now = new Date();
-  const diff = now.getTime() - new Date(date).getTime();
+  const diff = future ? new Date(date).getTime() - now.getTime() : now.getTime() - new Date(date).getTime();
   const seconds = Math.floor(diff / 1000);
   const minutes = Math.floor(seconds / 60);
   const hours = Math.floor(minutes / 60);
   const days = Math.floor(hours / 24);
 
+  let start = future ? 'in' : '';
+  let ending = future ? '' : 'ago';
+
   if (seconds < 60) {
-    return `${seconds} seconds ago`;
+    return `${start} ${seconds} seconds ${ending}`;
   } else if (minutes < 60) {
-    return `${minutes} minutes ago`;
+    return `${start} ${minutes} minutes ${ending}`;
   } else if (hours < 24) {
-    return `${hours} hours ago`;
+    return `${start} ${hours} hours ${ending}`;
   } else if (days < 7) {
-    return `${days} days ago`;
+    return `${start} ${days} days ${ending}`;
   } else if (days < 30) {
-    return `${Math.floor(days / 7)} weeks ago`;
+    return `${start} ${Math.floor(days / 7)} weeks ${ending}`;
   } else if (days < 365) {
-    return `${Math.floor(days / 30)} months ago`;
+    return `${start} ${Math.floor(days / 30)} months ${ending}`;
   } else if (days >= 365) {
-    return `${Math.floor(days / 365)} years ago`;
+    return `${start} ${Math.floor(days / 365)} years ${ending}`;
   } else {
     return date;
   }

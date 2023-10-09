@@ -13,8 +13,21 @@ body {
 }
 
 @layer base {
+  html,
+  body {
+    @apply font-sans !important;
+  }
   html {
     @apply scroll-smooth text-[14px] tablet:text-[16px];
+  }
+  * {
+    @apply font-sans selection:bg-primary/50 selection:text-foreground;
+  }
+  pre,
+  code,
+  pre span,
+  code span {
+    @apply font-mono !important;
   }
 
   *::-webkit-scrollbar {
@@ -38,21 +51,21 @@ body {
     @apply font-bold;
   }
   h1 {
-    @apply text-4xl tracking-wider;
+    @apply text-4xl;
   }
   h2 {
-    @apply text-3xl tracking-wider;
+    @apply text-3xl;
   }
   h3 {
-    @apply text-2xl tracking-wider;
+    @apply text-2xl;
   }
   h4 {
-    @apply text-xl tracking-wide;
+    @apply text-xl;
   }
   h5 {
-    @apply text-lg tracking-wide;
+    @apply text-lg;
   }
   h6 {
-    @apply text-base tracking-wide;
+    @apply text-base;
   }
 }

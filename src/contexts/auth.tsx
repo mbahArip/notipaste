@@ -1,3 +1,4 @@
+import { Routes } from 'constant';
 import { useRouter } from 'next/router';
 import type { RecordModel } from 'pocketbase';
 import { createContext, useContext, useEffect, useState } from 'react';
@@ -22,7 +23,6 @@ const AuthContext = createContext<AuthContextProps>({
 });
 
 export const useAuth = () => useContext(AuthContext);
-
 interface AuthProviderProps {
   children: React.ReactNode;
 }
@@ -51,16 +51,29 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // eslint-disable-next-line
   }, []);
 
-  const setUserData = (user: RecordModel) => {
+  const setUserData = async (user: RecordModel) => {
     const { id, username, email, avatar, created, updated } = user;
-    setUser({ id, username, email, avatar, created, updated });
+    let avatarURL = avatar;
+    if (!avatar.startsWith('http')) {
+      avatarURL = pb.getFileUrl(user, avatar, { thumb: '100x100' });
+    }
+    setUser({
+      id,
+      username,
+      email,
+      avatar: avatarURL,
+      collectionId: user.collectionId,
+      collectionName: user.collectionName,
+      created,
+      updated,
+    });
   };
   const logout = () => {
     setUser(null);
     pb.authStore.clear();
     cookieHelper.delete('pb_auth');
-    if (router.pathname.startsWith('/profile')) {
-      router.push('/');
+    if (router.pathname.startsWith(Routes.PROFILE)) {
+      router.push(Routes.HOME);
     }
   };
 

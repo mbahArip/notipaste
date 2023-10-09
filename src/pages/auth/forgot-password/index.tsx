@@ -1,5 +1,6 @@
 import { Button, Card, CardBody, CardFooter, CardHeader, Divider, Input, Link } from '@nextui-org/react';
 import axios, { AxiosError } from 'axios';
+import { Routes } from 'constant';
 import { GetServerSidePropsContext } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
@@ -18,7 +19,7 @@ export default function ForgotPasswordPage() {
 
   useEffect(() => {
     if (user) {
-      router.push('/');
+      router.push(Routes.HOME as string);
     }
     // eslint-disable-next-line
   }, [user]);
@@ -150,7 +151,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     if (pb.authStore.isValid) {
       return {
         redirect: {
-          destination: '/',
+          destination: Routes.HOME,
           permanent: false,
         },
       };

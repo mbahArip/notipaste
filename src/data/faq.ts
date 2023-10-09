@@ -34,6 +34,10 @@ User can create public and private paste, manage the paste via profile page, and
     content: `Yes you can, as long as you don't violate our Terms of Services.`,
   },
   {
+    title: 'Is the link inside the paste safe?',
+    content: `You will redirected to confirmation page before you can open the link, so you can decide whether you want to open it or not. I will not be responsible for any damage caused by the link inside the paste.`,
+  },
+  {
     title: 'What will you do with my data?',
     content: `Email, username and password are used for authentication purpose only. I will not share your data to anyone, and I will not use it for any other purpose.
 I will only use your email to send you verification link, reset password link, and notification if I will shutdown the service.`,

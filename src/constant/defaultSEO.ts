@@ -37,5 +37,10 @@ export const seo: DefaultSeoProps = {
       name: 'twitter:image',
       content: `${process.env.NEXT_PUBLIC_VERCEL_URL ?? 'https://notipaste.mbaharip.com'}/img/og-image.webp`,
     },
+    {
+      name: 'viewport',
+      content:
+        'minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no, user-scalable=no, viewport-fit=cover',
+    },
   ],
 };

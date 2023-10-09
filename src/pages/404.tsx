@@ -1,4 +1,5 @@
 import { Link, Link as NextUILink } from '@nextui-org/react';
+import { Routes } from 'constant';
 import notFound from 'data/404';
 import { useEffect, useState } from 'react';
 
@@ -29,7 +30,7 @@ export default function NotFoundPage() {
         </div>
         <NextUILink
           as={Link}
-          href='/'
+          href={Routes.HOME}
           className='text-center'
         >
           Go back to home

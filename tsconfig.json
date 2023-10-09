@@ -24,6 +24,7 @@
       "contexts/*": ["./src/contexts/*"],
       "data/*": ["./src/data/*"],
       "hooks/*": ["./src/hooks/*"],
+      "lib/*": ["./src/lib/*"],
       "styles/*": ["./src/styles/*"],
       "types/*": ["./src/types/*"],
       "utils/*": ["./src/utils/*"]

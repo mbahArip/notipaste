@@ -41,7 +41,8 @@ So I decided to create a pastebin, because I use pastebin a lot to share or save
 4. Replace `.env.local` variables
 5. Run Pocketbase server  
    `pocketbase serve`
-6. Run development server  
+6. [Import Pocketbase tables](#import-pocketbase-schema)
+7. Run development server  
    `npm run dev` or `yarn dev` or `pnpm dev`
 
 ### Environment variables
@@ -53,6 +54,16 @@ So I decided to create a pastebin, because I use pastebin a lot to share or save
 | `POCKETBASE_PASSWORD`        | Pocketbase Admin password                                                            |
 | `NEXT_PUBLIC_VERCEL_URL`     | Vercel URL (Default `localhost:3000` on dev, and generated deployment URL on Vercel) |
 | `VERCEL_URL`                 | Vercel URL (Default `localhost:3000` on dev, and generated deployment URL on Vercel) |
+
+### Import Pocketbase schema
+
+1. Go to Pocketbase admin page  
+   `http://localhost:8090/admin`
+2. Login with your Pocketbase admin account
+3. Open `Settings` page
+4. Open `Import collections` menu
+5. Click `Load from JSON file` button
+6. Select `pocketbase-schema.json` file from `db/schema.json` directory
 
 ## License
 

@@ -1,0 +1,71 @@
+{
+  "name": "Notipaste",
+  "short_name": "Notipaste",
+  "icons": [
+    {
+      "src": "/icons/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/desktop-1.jpg",
+      "sizes": "1313x970",
+      "type": "image/jpeg",
+      "form_factor": "wide",
+      "label": "Notipaste"
+    },
+    {
+      "src": "/screenshots/desktop-2.jpg",
+      "sizes": "1313x970",
+      "type": "image/jpeg",
+      "form_factor": "wide",
+      "label": "New paste"
+    },
+    {
+      "src": "/screenshots/desktop-3.jpg",
+      "sizes": "1313x970",
+      "type": "image/jpeg",
+      "form_factor": "wide",
+      "label": "Reading a paste"
+    },
+    {
+      "src": "/screenshots/mobile-1.jpg",
+      "sizes": "386x823",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "Notipaste"
+    },
+    {
+      "src": "/screenshots/mobile-2.jpg",
+      "sizes": "386x823",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "New paste"
+    },
+    {
+      "src": "/screenshots/mobile-3.jpg",
+      "sizes": "386x823",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "Reading a paste"
+    }
+  ],
+  "theme_color": "#11181C",
+  "background_color": "#FFFFFF",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "description": "Notipaste is a simple markdown paste service"
+}

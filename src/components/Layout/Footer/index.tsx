@@ -1,4 +1,5 @@
 import { Link as NextUILink } from '@nextui-org/react';
+import { Routes } from 'constant';
 import Link from 'next/link';
 
 const socials: { name: string; url: string }[] = [
@@ -42,14 +43,14 @@ export default function Footer() {
         <div className='flex items-center gap-4'>
           <NextUILink
             as={Link}
-            href='/faq'
+            href={Routes.FAQ}
             className='text-small'
           >
             FAQ
           </NextUILink>
           <NextUILink
             as={Link}
-            href='/terms-of-services'
+            href={Routes.TOS}
             className='text-small'
           >
             Terms of Service

@@ -20,6 +20,7 @@ import { Routes } from 'constant';
 import { motion } from 'framer-motion';
 import { icons } from 'lucide-react';
 import useTheme from 'next-theme';
+import { Noto_Serif_Georgian } from 'next/font/google';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
@@ -32,6 +33,12 @@ import { useAuth } from 'contexts/auth';
 import sleep from 'utils/sleep';
 
 import { LoadingState } from 'types/Helpers';
+
+const georgia = Noto_Serif_Georgian({
+  weight: ['300', '400', '500', '700', '800'],
+  preload: true,
+  subsets: ['latin', 'latin-ext'],
+});
 
 const routes: { name: string; href: string; external?: boolean; icon?: keyof typeof icons }[] = [
   {
@@ -127,7 +134,7 @@ export default function Navbar() {
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const { username, email, password } = authInput;
+    const { username, password } = authInput;
     if (!username) return setAuthError({ ...authError, username: 'Username cannot be empty' });
     if (!password) return setAuthError({ ...authError, password: 'Password cannot be empty' });
 
@@ -252,7 +259,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className='sticky top-0 z-50 flex w-full flex-col items-center justify-center bg-background'>
+    <nav className='sticky top-0 z-50 flex w-full flex-col items-center justify-center bg-background/50 backdrop-blur'>
       <div className='relative z-50 flex w-full max-w-screen-xl items-center justify-between gap-4 p-2'>
         <div className='flex items-end gap-4'>
           {/* Logo */}
@@ -276,12 +283,20 @@ export default function Navbar() {
                 )}
               />
             </div>
-            <Icon
+            <img
+              loading='eager'
+              src='/icon.svg'
+              alt='Notipaste'
+              width={32}
+              height={32}
+              className={twMerge('-mr-2 hidden tablet:flex')}
+            />
+            {/* <Icon
               name='FileEdit'
               size='lg'
               className='hidden tablet:block'
-            />
-            <h1 className='text-2xl font-bold'>Notipaste</h1>
+            /> */}
+            <h1 className={`text-2xl font-bold`}>Notipaste</h1>
           </div>
 
           {/* Links */}
@@ -313,7 +328,7 @@ export default function Navbar() {
           </ul>
         </div>
 
-        <div className='flex items-center justify-center gap-2'>
+        <div className='flex items-center justify-center gap-4'>
           <div className='flex items-center gap-1'>
             {/* Support me */}
             <Dropdown
@@ -400,12 +415,13 @@ export default function Navbar() {
             <Button
               as={Link}
               href={Routes.NEW_PASTE}
-              variant='light'
-              isIconOnly
+              variant='shadow'
+              color='primary'
               radius='full'
-              className='aria-expanded:opacity-100'
+              className='aspect-square min-w-0 aria-expanded:opacity-100 tablet:aspect-auto'
             >
               <Icon name='PlusSquare' />
+              <span className='hidden tablet:inline'>New paste</span>
             </Button>
           </div>
 
@@ -425,6 +441,7 @@ export default function Navbar() {
                     <Avatar
                       src={user.avatar}
                       className='cursor-pointer'
+                      isBordered
                     />
                   </DropdownTrigger>
                   <DropdownMenu
@@ -437,13 +454,13 @@ export default function Navbar() {
                     >
                       <DropdownItem
                         textValue='profile'
-                        onClick={() => router.push('/profile')}
+                        onClick={() => router.push(Routes.PROFILE as string)}
                       >
                         My Profile
                       </DropdownItem>
                       <DropdownItem
                         textValue='settings'
-                        onClick={() => router.push('/settings')}
+                        onClick={() => router.push(Routes.SETTINGS as string)}
                       >
                         Settings
                       </DropdownItem>
@@ -552,7 +569,7 @@ export default function Navbar() {
                                   href={Routes.FORGOT_PASSWORD}
                                   className='text-tiny'
                                 >
-                                  Forgot password
+                                  Forgot password?
                                 </NextUILink>
                                 <span
                                   className='relative inline-flex cursor-pointer items-center text-tiny text-primary no-underline outline-none transition-opacity tap-highlight-transparent hover:opacity-80 active:opacity-disabled data-[focus-visible=true]:z-10 data-[focus-visible=true]:outline-2 data-[focus-visible=true]:outline-offset-2 data-[focus-visible=true]:outline-focus'

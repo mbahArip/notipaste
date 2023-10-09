@@ -15,7 +15,6 @@ export enum Routes {
 
   PROFILE = '/profile',
   SETTINGS = '/profile/settings',
-  MY_PASTE = '/profile/paste',
 }
 
 export default Constant;

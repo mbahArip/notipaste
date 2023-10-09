@@ -72,7 +72,7 @@ export default function ToSPage() {
               </li>
               <li>
                 <strong>Spam or Advertising</strong>, this includes any content that is intended to promote a product,
-                service, or website, or any content that is considered spam
+                service, website, or any content that is considered spam as the main content of the paste.
               </li>
             </ul>
           </div>

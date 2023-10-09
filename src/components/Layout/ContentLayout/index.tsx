@@ -18,7 +18,7 @@ export default function ContentLayout(props: ContentLayoutProps) {
 
   useEffect(() => {
     const fetchStatus = async () => {
-      // setState('loading');
+      setState('loading');
       try {
         const res = await axios.get('/api/internal/status');
         if (res.data.status) {
@@ -39,18 +39,25 @@ export default function ContentLayout(props: ContentLayoutProps) {
   return (
     <>
       <NextSeo {...props.seo} />
+
       {state === 'loading' ? (
-        <div className='flex h-full w-full flex-grow items-center justify-center'>
+        <motion.div
+          initial={{ opacity: 0, y: 0, scale: 1.1 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 40, scale: 1 }}
+          transition={{ duration: 0.5, ease: 'easeInOut', type: 'tween' }}
+          className='flex h-full w-full flex-grow items-center justify-center'
+        >
           <Spinner />
-        </div>
+        </motion.div>
       ) : (
         <>
           <motion.div
             initial={{ opacity: 0, y: 0, scale: 1.1 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 0, scale: 0.8 }}
+            exit={{ opacity: 0, y: 40, scale: 1 }}
             transition={{ duration: 0.5, ease: 'easeInOut', type: 'tween' }}
-            className='mx-auto flex w-full max-w-screen-xl flex-grow flex-col items-center justify-center px-4 py-8 tablet:px-4'
+            className='relative z-10 mx-auto flex w-full max-w-screen-xl flex-grow flex-col items-center justify-center gap-8 px-4 py-8 tablet:px-4'
           >
             {serverStatus === 'up' ? (
               props.children
