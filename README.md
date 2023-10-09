@@ -89,4 +89,4 @@ If the server down for more than 30 minutes, it probably because there is a powe
 
 ## License
 
-[MIT](LICENSE)
+[MIT](LICENSE.md)
