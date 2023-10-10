@@ -43,7 +43,7 @@ export default function IndexPage(props: IndexPageProps) {
         <h2 className='text-center'>
           Simple, fast, and secure pastebin service <br />
         </h2>
-        <h3 className='flex items-center gap-2'>
+        <h4 className='flex items-center gap-2 whitespace-nowrap'>
           Total of{' '}
           <div className='flex items-center'>
             {String(num)
@@ -65,7 +65,7 @@ export default function IndexPage(props: IndexPageProps) {
               ))}
           </div>
           pastes have been created
-        </h3>
+        </h4>
         <p className='text-center text-default-400'>
           Create a paste and share it with your friends. <br />
           No account required.
